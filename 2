@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de spécialiste</title>
+    <link rel="stylesheet" href="style.css"> <!-- pour ajouter du CSS -->
+</head>
+<body>
+    <div id="quiz-container">
+        <div id="question-container">
+            <p id="question">Où avez-vous mal ?</p>
+        </div>
+        <div id="answers">
+            <label>
+                <input type="radio" name="pain" value="neck"> Cou
+            </label>
+            <label>
+                <input type="radio" name="pain" value="toes"> orteils
+            </label>
+            <label>
+                <input type="radio" name="pain" value="ass"> Fesses
+            </label>
+        </div>
+        
+        <div id="language-container" style="display:none;">
+            <p>Quelle est votre langue maternelle ?</p>
+            <label>
+                <input type="radio" name="language" value="french"> Français
+            </label>
+            <label>
+                <input type="radio" name="language" value="german"> Allemand
+            </label>
+            <label>
+                <input type="radio" name="language" value="english"> Anglais
+            </label>
+        </div>
+
+        <div id="age-container" style="display:none;">
+            <p>Quel âge avez-vous ?</p>
+            <input type="number" id="age-input" placeholder="Entrez votre âge">
+        </div>
+
+        <button id="next-btn">Suivant</button>
+    </div>
+
+    <script src="script.js"></script> <!-- pour ajouter du JavaScript -->
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#quiz-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+label {
+    display: block;
+    margin: 10px 0;
+}
+
+input[type="radio"], input[type="number"] {
+    margin-right: 10px;
+}
+// Variables globales
+let selectedPain = null;
+let selectedLanguage = null;
+let age = null;
+
+// Fonction pour déterminer le spécialiste
+function determineSpecialist() {
+    let specialists = ["Charles", "Clara", "Anne"];
+    
+    // Règles basées sur la douleur
+    if (selectedPain === "neck") {
+        specialists = specialists.filter(s => s !== "Clara");
+    } else if (selectedPain === "toes") {
+        specialists = specialists.filter(s => s !== "Charles");
+    } else if (selectedPain === "ass") {
+        specialists = specialists.filter(s => s !== "Anne");
+    }
+
+    // Règles basées sur la langue
+    if (selectedLanguage === "french") {
+        specialists = specialists.filter(s => s !== "Anne" && s !== "Clara");
+    } else if (selectedLanguage === "german") {
+        specialists = specialists.filter(s => s !== "Charles");
+    } else if (selectedLanguage === "english") {
+        // Aucun spécialiste éliminé si la langue est l'anglais
+    }
+
+    // Règles basées sur l'âge
+    if (age < 10) {
+        specialists = specialists.filter(s => s !== "Charles" && s !== "Anne");
+    } else if (age > 70) {
+        specialists = specialists.filter(s => s !== "Charles");
+    }
+
+    // Résultat final
+    if (specialists.length === 0) {
+        alert("Aucun spécialiste ne correspond à vos critères.");
+    } else {
+        alert(`Le spécialiste qui vous correspond est : ${specialists.join(", ")}`);
+        sendEmail(specialists);  // Envoi de l'e-mail (voir étape suivante)
+    }
+}
+
+// Fonction pour envoyer un e-mail (simulation avec un message de console)
+function sendEmail(specialists) {
+    const emailContent = `Bonjour, votre spécialiste est ${specialists.join(", ")}.`;
+    console.log("E-mail envoyé avec le contenu : ", emailContent);
+    // Implémentation côté serveur pour envoyer un véritable e-mail peut être ajoutée ici
+}
+
+// Logique d'avancement du quiz
+document.getElementById("next-btn").addEventListener("click", function() {
+    const painAnswer = document.querySelector('input[name="pain"]:checked');
+    if (painAnswer) {
+        selectedPain = painAnswer.value;
+        document.getElementById("language-container").style.display = "block";
+        document.getElementById("question-container").style.display = "none";
+    } else {
+        alert("Veuillez répondre à la première question.");
+        return;
+    }
+
+    // Traitement de la langue
+    const languageAnswer = document.querySelector('input[name="language"]:checked');
+    if (languageAnswer) {
+        selectedLanguage = languageAnswer.value;
+        document.getElementById("age-container").style.display = "block";
+        document.getElementById("language-container").style.display = "none";
+    } else {
+        alert("Veuillez répondre à la question sur la langue.");
+        return;
+    }
+
+    // Traitement de l'âge
+    age = parseInt(document.getElementById("age-input").value, 10);
+    if (isNaN(age)) {
+        alert("Veuillez entrer votre âge.");
+        return;
+    }
+
+    // Déterminer le spécialiste en fonction des réponses
+    determineSpecialist();
+});
